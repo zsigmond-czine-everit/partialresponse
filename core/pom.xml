@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.everit.config</groupId>
+    <artifactId>org.everit.config.oss</artifactId>
+    <version>7.0.1</version>
+  </parent>
+
+  <groupId>org.everit.web</groupId>
+  <artifactId>org.everit.web.partialresponse.core</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <packaging>bundle</packaging>
+
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Import-Package>
+              *
+            </Import-Package>
+            <Export-Package>
+              org.everit.web.partialresponse.core;version=1.0.0
+            </Export-Package>
+            <Require-Capability>
+              everit.webresource;filter:="(name=JQuery)"
+            </Require-Capability>
+            <Provide-Capability>
+              everit.webresource;name=org.everit.web.partialresponse;resourceFolder=/META-INF/webresource;libraryPrefix=org/everit/web/partialresponse
+            </Provide-Capability>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.everit.osgi.bundles</groupId>
+      <artifactId>org.everit.osgi.bundles.javax.servlet.api</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+  </repositories>
+
+  <distributionManagement>
+  </distributionManagement>
+
+</project>
