@@ -270,7 +270,4 @@
     </repository>
   </repositories>
 
-  <distributionManagement>
-  </distributionManagement>
-
 </project>
