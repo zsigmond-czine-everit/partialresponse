@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.web.partialresponse.tests;
+package org.everit.web.partialresponse.ri.tests;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.function.Consumer;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.NetworkConnector;
@@ -155,6 +156,38 @@ public class PartialResponseTest {
         .newContent("default_new_content");
   }
 
+  private void doTest(final String linkElementId, final Consumer<HtmlPage> testAction)
+      throws IOException {
+    HtmlPage htmlPage = getPageAfterClick(BrowserVersion.INTERNET_EXPLORER_11, linkElementId);
+    testAction.accept(htmlPage);
+
+    htmlPage = getPageAfterClick(BrowserVersion.INTERNET_EXPLORER_8, linkElementId);
+    testAction.accept(htmlPage);
+
+    htmlPage = getPageAfterClick(BrowserVersion.FIREFOX_38, linkElementId);
+    testAction.accept(htmlPage);
+
+    htmlPage = getPageAfterClick(BrowserVersion.CHROME, linkElementId);
+    testAction.accept(htmlPage);
+  }
+
+  private HtmlPage getPageAfterClick(final BrowserVersion browserVersion,
+      final String linkElemendId) throws IOException {
+    try (WebClient webClient = new WebClient(browserVersion)) {
+      setClientOptions(webClient);
+      WebWindow webWindow = openWindow(webClient, "https://localhost:" + jettyPort, WINDOW_NAME);
+      Page page = webWindow.getEnclosedPage();
+
+      HtmlPage htmlPage = cast(page);
+      assertPageTexts(htmlPage, createDefaultExpectedTextMsgDTO());
+
+      HtmlAnchor link = cast(htmlPage.getElementById(linkElemendId));
+      link.click();
+      webClient.waitForBackgroundJavaScript(ONE_HUNDRED);
+      return htmlPage;
+    }
+  }
+
   private String getTextContentById(final HtmlPage page, final String id) {
     DomElement element = page.getElementById(id);
     if (element == null) {
@@ -172,6 +205,11 @@ public class PartialResponseTest {
     }
   }
 
+  private void setClientOptions(final WebClient webClient) {
+    webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+    webClient.getOptions().setUseInsecureSSL(true);
+  }
+
   /**
    * Resolves Jetty server port.
    *
@@ -187,42 +225,30 @@ public class PartialResponseTest {
 
   @Test
   @TestDuringDevelopment
-  public void testAppend() throws IOException {
-    try (WebClient webClient = new WebClient(BrowserVersion.INTERNET_EXPLORER_11)) {
-      webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-      webClient.getOptions().setUseInsecureSSL(true);
-      WebWindow webWindow = openWindow(webClient, "https://localhost:" + jettyPort, WINDOW_NAME);
-      Page page = webWindow.getEnclosedPage();
+  public void testAppend1() throws IOException {
+    doTest("append_1", (htmlPage) -> {
+      ExpectedTextMsgDTO expectedTextMsgDTO = createDefaultExpectedTextMsgDTO()
+          .subDiv0Msg("default_sub_div_0_msg_append");
+      assertPageTexts(htmlPage, expectedTextMsgDTO);
+    });
+  }
 
-      HtmlPage htmlPage = cast(page);
-      assertPageTexts(htmlPage, createDefaultExpectedTextMsgDTO());
-
-      HtmlAnchor append = cast(htmlPage.getElementById("append"));
-      append.click();
-      webClient.waitForBackgroundJavaScript(ONE_HUNDRED);
+  @Test
+  @TestDuringDevelopment
+  public void testAppend2() throws IOException {
+    doTest("append_2", (htmlPage) -> {
       ExpectedTextMsgDTO expectedTextMsgDTO = createDefaultExpectedTextMsgDTO()
           .newContent("default_new_content_append");
       assertPageTexts(htmlPage, expectedTextMsgDTO);
       assertText(htmlPage, "append_new_content", "append_new_content");
       assertText(htmlPage, "after_append", "after_append");
-    }
+    });
   }
 
   @Test
   @TestDuringDevelopment
   public void testComplex() throws IOException {
-    try (WebClient webClient = new WebClient(BrowserVersion.INTERNET_EXPLORER_11)) {
-      webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-      webClient.getOptions().setUseInsecureSSL(true);
-      WebWindow webWindow = openWindow(webClient, "https://localhost:" + jettyPort, WINDOW_NAME);
-      Page page = webWindow.getEnclosedPage();
-
-      HtmlPage htmlPage = cast(page);
-      assertPageTexts(htmlPage, createDefaultExpectedTextMsgDTO());
-
-      HtmlAnchor complex = cast(htmlPage.getElementById("complex"));
-      complex.click();
-      webClient.waitForBackgroundJavaScript(ONE_HUNDRED);
+    doTest("complex", (htmlPage) -> {
       ExpectedTextMsgDTO expectedTextMsgDTO = createDefaultExpectedTextMsgDTO()
           .newContent("prepend_default_new_content_append")
           .subDiv0Msg("replace_by_id_sub_div_0_msg")
@@ -231,47 +257,45 @@ public class PartialResponseTest {
           .subDiv2Msg("replace_by_id_sub_div_2_msg")
           .divTable2CellMsg("replace_by_id_div_table_2_cell_msg");
       assertPageTexts(htmlPage, expectedTextMsgDTO);
-    }
+    });
   }
 
   @Test
   @TestDuringDevelopment
-  public void testPrepend() throws IOException {
-    try (WebClient webClient = new WebClient(BrowserVersion.INTERNET_EXPLORER_11)) {
-      webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-      webClient.getOptions().setUseInsecureSSL(true);
-      WebWindow webWindow = openWindow(webClient, "https://localhost:" + jettyPort, WINDOW_NAME);
-      Page page = webWindow.getEnclosedPage();
+  public void testPrepend1() throws IOException {
+    doTest("prepend_1", (htmlPage) -> {
+      ExpectedTextMsgDTO expectedTextMsgDTO = createDefaultExpectedTextMsgDTO()
+          .subDiv0Msg("prepend_default_sub_div_0_msg");
+      assertPageTexts(htmlPage, expectedTextMsgDTO);
+    });
+  }
 
-      HtmlPage htmlPage = cast(page);
-      assertPageTexts(htmlPage, createDefaultExpectedTextMsgDTO());
-
-      HtmlAnchor prepend = cast(htmlPage.getElementById("prepend"));
-      prepend.click();
-      webClient.waitForBackgroundJavaScript(ONE_HUNDRED);
+  @Test
+  @TestDuringDevelopment
+  public void testPrepend2() throws IOException {
+    doTest("prepend_2", (htmlPage) -> {
       ExpectedTextMsgDTO expectedTextMsgDTO = createDefaultExpectedTextMsgDTO()
           .newContent("prepend_default_new_content");
       assertPageTexts(htmlPage, expectedTextMsgDTO);
       assertText(htmlPage, "prepend_new_content", "prepend_new_content");
       assertText(htmlPage, "after_prepend", "after_prepend");
-    }
+    });
   }
 
   @Test
   @TestDuringDevelopment
-  public void testReplace() throws IOException {
-    try (WebClient webClient = new WebClient(BrowserVersion.INTERNET_EXPLORER_11)) {
-      webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-      webClient.getOptions().setUseInsecureSSL(true);
-      WebWindow webWindow = openWindow(webClient, "https://localhost:" + jettyPort, WINDOW_NAME);
-      Page page = webWindow.getEnclosedPage();
+  public void testReplace1() throws IOException {
+    doTest("replace_1", (htmlPage) -> {
+      ExpectedTextMsgDTO expectedTextMsgDTO = createDefaultExpectedTextMsgDTO()
+          .divTable2CellMsg("replace_div_table_2_cell_msg");
+      assertPageTexts(htmlPage, expectedTextMsgDTO);
+    });
+  }
 
-      HtmlPage htmlPage = cast(page);
-      assertPageTexts(htmlPage, createDefaultExpectedTextMsgDTO());
-
-      HtmlAnchor replace = cast(htmlPage.getElementById("replace"));
-      replace.click();
-      webClient.waitForBackgroundJavaScript(ONE_HUNDRED);
+  @Test
+  @TestDuringDevelopment
+  public void testReplace2() throws IOException {
+    doTest("replace_2", (htmlPage) -> {
       ExpectedTextMsgDTO expectedTextMsgDTO = createDefaultExpectedTextMsgDTO()
           .subDiv0Msg("update__SUB_DIV_0_sub_div_0_msg")
           .subDiv1Msg("update__SUB_DIV_1_sub_div_1_msg")
@@ -280,24 +304,23 @@ public class PartialResponseTest {
           .divTable2CellMsg("update__DIV_TABLE_2_div_table_2_cell_msg")
           .newContent("replace_new_content_with_hard_code_html");
       assertPageTexts(htmlPage, expectedTextMsgDTO);
-    }
+    });
   }
 
   @Test
   @TestDuringDevelopment
-  public void testReplaceById() throws IOException {
-    try (WebClient webClient = new WebClient(BrowserVersion.INTERNET_EXPLORER_11)) {
-      webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-      webClient.getOptions().setUseInsecureSSL(true);
-      WebWindow webWindow = openWindow(webClient, "https://localhost:" + jettyPort, WINDOW_NAME);
-      Page page = webWindow.getEnclosedPage();
+  public void testReplaceById1() throws IOException {
+    doTest("replace_by_id_1", (htmlPage) -> {
+      ExpectedTextMsgDTO expectedTextMsgDTO = createDefaultExpectedTextMsgDTO()
+          .divTable2CellMsg("replace_by_id_div_table_2_cell_msg");
+      assertPageTexts(htmlPage, expectedTextMsgDTO);
+    });
+  }
 
-      HtmlPage htmlPage = cast(page);
-      assertPageTexts(htmlPage, createDefaultExpectedTextMsgDTO());
-
-      HtmlAnchor replaceById = cast(htmlPage.getElementById("replace_by_id"));
-      replaceById.click();
-      webClient.waitForBackgroundJavaScript(ONE_HUNDRED);
+  @Test
+  @TestDuringDevelopment
+  public void testReplaceById2() throws IOException {
+    doTest("replace_by_id_2", (htmlPage) -> {
       ExpectedTextMsgDTO expectedTextMsgDTO = createDefaultExpectedTextMsgDTO()
           .subDiv0Msg("update__SUB_DIV_0_sub_div_0_msg")
           .subDiv1Msg("update__SUB_DIV_1_sub_div_1_msg")
@@ -306,6 +329,6 @@ public class PartialResponseTest {
           .divTable2CellMsg("update__DIV_TABLE_2_div_table_2_cell_msg")
           .newContent("replace_by_id_new_content_with_hard_code_html");
       assertPageTexts(htmlPage, expectedTextMsgDTO);
-    }
+    });
   }
 }

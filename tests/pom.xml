@@ -22,12 +22,12 @@
 
   <parent>
     <groupId>org.everit.web</groupId>
-    <artifactId>org.everit.web.partialresponse.parent</artifactId>
+    <artifactId>org.everit.web.partialresponse.ri.parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.everit.web</groupId>
-  <artifactId>org.everit.web.partialresponse.tests</artifactId>
+  <artifactId>org.everit.web.partialresponse.ri.tests</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <packaging>bundle</packaging>
@@ -51,7 +51,7 @@
             </Import-Package>
             <Export-Package>
             </Export-Package>
-            <EOSGi-TestNum>5</EOSGi-TestNum>
+            <EOSGi-TestNum>9</EOSGi-TestNum>
             <Require-Capability>
             </Require-Capability>
             <Provide-Capability>
@@ -107,7 +107,7 @@
   <dependencies>
     <dependency>
       <groupId>org.everit.web</groupId>
-      <artifactId>org.everit.web.partialresponse.core</artifactId>
+      <artifactId>org.everit.web.partialresponse.ri</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
 

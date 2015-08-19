@@ -90,8 +90,37 @@ div.border {
           <td>Reset to default values (partial response with full_content)</td>
         </tr>
         <tr>
-          <td><a id="replace_by_id" href="javascript:void(0);" onclick="replaceByIdTest();">ReplaceById
-              Test</a></td>
+          <td><a id="replace_by_id_1" href="javascript:void(0);" onclick="replaceById1();">ReplaceById
+              1</a></td>
+          <td><pre>
+Partial response test with only use partial-replace (replaceById). 
+Only change "default_div_table_2_cell_msg" text to "replace_by_id_div_table_2_cell_msg".
+</pre></td>
+        </tr>
+        <tr>
+          <td><a id="replace_1" href="javascript:void(0);" onclick="replace1();">Replace 1</a></td>
+          <td><pre>
+Partial response test with only use partial-replace (replace with use selector). Change order:
+Only change "default_div_table_2_cell_msg" text to "replace_div_table_2_cell_msg".
+</pre></td>
+        </tr>
+        <tr>
+          <td><a id="append_1" href="javascript:void(0);" onclick="append1();">Append 1</a></td>
+          <td><pre>
+Partial response test with only use partial-append (append with use selector). Change order:
+Only change "default_sub_div_0_msg" text to "default_sub_div_0_msg_append".
+</pre></td>
+        </tr>
+        <tr>
+          <td><a id="prepend_1" href="javascript:void(0);" onclick="prepend1();">Prepend 1</a></td>
+          <td><pre>
+Partial response test with only use partial-append (prepend with use selector). Change order:
+Only change "default_sub_div_0_msg" text to "prepend_default_sub_div_0_msg".
+</pre></td>
+        </tr>
+        <tr>
+          <td><a id="replace_by_id_2" href="javascript:void(0);" onclick="replaceById2();">ReplaceById
+              2</a></td>
           <td><pre>
 Partial response test with only use partial-replace (replaceById). Change order:
 1. Change new_content div text ("default_new_content" to "replace_by_id_new_content_with_hard_code_html").
@@ -103,8 +132,7 @@ Partial response test with only use partial-replace (replaceById). Change order:
 </pre></td>
         </tr>
         <tr>
-          <td><a id="replace" href="javascript:void(0);" onclick="replaceTest();">Replace
-              Test</a></td>
+          <td><a id="replace_2" href="javascript:void(0);" onclick="replace2();">Replace 2</a></td>
           <td><pre>
 Partial response test with only use partial-replace (replace with use selector). Change order:
 1. Change new_content div text ("default_new_content" to "replace_new_content_with_hard_code_html").
@@ -116,9 +144,9 @@ Partial response test with only use partial-replace (replace with use selector).
 </pre></td>
         </tr>
         <tr>
-          <td><a id="append" href="javascript:void(0);" onclick="appendTest();">Append Test</a></td>
+          <td><a id="append_2" href="javascript:void(0);" onclick="append2();">Append 2</a></td>
           <td><pre>
-Partial response test with only use Prepend-append (append with use selector). Change order:
+Partial response test with only use partial-append (append with use selector). Change order:
 1. Append "_append" postfix to "default_new_content".
 2. Append new div elements to main_div. Append "append_new_content" div with text content ("append_new_content")
    and empty "after_append" with empty text content.
@@ -126,18 +154,7 @@ Partial response test with only use Prepend-append (append with use selector). C
 </pre></td>
         </tr>
         <tr>
-          <td><a id="prepend" href="javascript:void(0);" onclick="prependTest();">Prepend
-              Test</a></td>
-          <td><pre>
-Partial response test with use partial-append, partial-prepend, partial-replace normal and selectors. Change order:
-1. Change main_div text (sub_div_0, sub_div_1 and sub_div_2; prefix ("default") is replaced to "replace_by_id").
-2. Append "_append" postfix to "default_new_content".
-3. Prepend "prepend_" prefix to "default_new_content_append".
-</pre></td>
-        </tr>
-        <tr>
-          <td><a id="complex" href="javascript:void(0);" onclick="complexTest();">Complex
-              Test</a></td>
+          <td><a id="prepend_2" href="javascript:void(0);" onclick="prepend2();">Prepend 2</a></td>
           <td><pre>
 Partial response test with only use partial-append (prepend with use selector). Change order:
 1. Prepend "prepend_" prefix to "default_new_content".
@@ -145,6 +162,15 @@ Partial response test with only use partial-append (prepend with use selector). 
    and empty "after_prepend" with empty text content.
 3. Prepend "after_prepend" text to the "after_prepend" div.
 4. Change sub_div_1 text (prefix replaced to "update_SUB_DIV_1").
+</pre></td>
+        </tr>
+        <tr>
+          <td><a id="complex" href="javascript:void(0);" onclick="complex();">Complex</a></td>
+          <td><pre>
+Partial response test with use partial-append, partial-prepend, partial-replace normal and selectors. Change order:
+1. Change main_div text (sub_div_0, sub_div_1 and sub_div_2; prefix ("default") is replaced to "replace_by_id").
+2. Append "_append" postfix to "default_new_content".
+3. Prepend "prepend_" prefix to "default_new_content_append".
 </pre></td>
         </tr>
       </tbody>
@@ -165,10 +191,10 @@ Partial response test with only use partial-append (prepend with use selector). 
         return true;
       }
 
-      function replaceByIdTest() {
+      function replaceById1() {
         $.ajax({
           data : {
-            action : "replace_by_id"
+            action : "replace_by_id_1"
           },
           headers : {
             "x-partialresponse-ajax" : "true"
@@ -179,10 +205,10 @@ Partial response test with only use partial-append (prepend with use selector). 
         return true;
       }
 
-      function replaceTest() {
+      function replace1() {
         $.ajax({
           data : {
-            action : "replace"
+            action : "replace_1"
           },
           headers : {
             "x-partialresponse-ajax" : "true"
@@ -193,10 +219,10 @@ Partial response test with only use partial-append (prepend with use selector). 
         return true;
       }
 
-      function appendTest() {
+      function append1() {
         $.ajax({
           data : {
-            action : "append"
+            action : "append_1"
           },
           headers : {
             "x-partialresponse-ajax" : "true"
@@ -207,10 +233,10 @@ Partial response test with only use partial-append (prepend with use selector). 
         return true;
       }
 
-      function prependTest() {
+      function prepend1() {
         $.ajax({
           data : {
-            action : "prepend"
+            action : "prepend_1"
           },
           headers : {
             "x-partialresponse-ajax" : "true"
@@ -221,7 +247,63 @@ Partial response test with only use partial-append (prepend with use selector). 
         return true;
       }
 
-      function complexTest() {
+      function replaceById2() {
+        $.ajax({
+          data : {
+            action : "replace_by_id_2"
+          },
+          headers : {
+            "x-partialresponse-ajax" : "true"
+          }
+        }).done(function(msg) {
+          epr_process_ajax_response(msg);
+        });
+        return true;
+      }
+
+      function replace2() {
+        $.ajax({
+          data : {
+            action : "replace_2"
+          },
+          headers : {
+            "x-partialresponse-ajax" : "true"
+          }
+        }).done(function(msg) {
+          epr_process_ajax_response(msg);
+        });
+        return true;
+      }
+
+      function append2() {
+        $.ajax({
+          data : {
+            action : "append_2"
+          },
+          headers : {
+            "x-partialresponse-ajax" : "true"
+          }
+        }).done(function(msg) {
+          epr_process_ajax_response(msg);
+        });
+        return true;
+      }
+
+      function prepend2() {
+        $.ajax({
+          data : {
+            action : "prepend_2"
+          },
+          headers : {
+            "x-partialresponse-ajax" : "true"
+          }
+        }).done(function(msg) {
+          epr_process_ajax_response(msg);
+        });
+        return true;
+      }
+
+      function complex() {
         $.ajax({
           data : {
             action : "complex"

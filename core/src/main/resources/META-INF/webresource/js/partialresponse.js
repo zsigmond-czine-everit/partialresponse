@@ -14,45 +14,32 @@
  * limitations under the License.
  */
 function epr_process_ajax_response(responseContent) {
-  var responseContentType = $.type(responseContent);
-  var responseObj;
-  if (responseContentType == 'string') {
-    responseObj = $($.parseHTML(responseContent));
-  } else {
-    responseObj = responseContent.documentElement;
-  }
+  var responseObj = $($.parseHTML(responseContent));
 
-  if (responseObj.prop('nodeName').toUpperCase() != 'PARTIAL-RESPONSE') {
-    responseObj.each(function() {
-      var rootElementId = $(this).attr('id');
-      $('#' + rootElementId).replaceWith(this.outerHTML);
-    });
-  } else {
-    responseObj.children('partial-replace').each(function() {
-      var replaceObj = $(this);
-      var selector = replaceObj.attr('selector');
-      if (typeof selector !== typeof undefined && selector !== false) {
-        $(selector).replaceWith(replaceObj.html());
-      } else {
-        $(this).children().each(function() {
-          var newContentObj = $(this);
-          var elementId = newContentObj.attr('id');
-          var newContentOuterHTML = this.outerHTML;
-          $('#' + elementId).replaceWith(newContentOuterHTML);
-        });
-      }
-    });
+  responseObj.children('partial-replace').each(function() {
+    var replaceObj = $(this);
+    var selector = replaceObj.attr('selector');
+    if (typeof selector !== typeof undefined && selector !== false) {
+      $(selector).replaceWith(replaceObj.html());
+    } else {
+      $(this).children().each(function() {
+        var newContentObj = $(this);
+        var elementId = newContentObj.attr('id');
+        var newContentOuterHTML = this.outerHTML;
+        $('#' + elementId).replaceWith(newContentOuterHTML);
+      });
+    }
+  });
 
-    responseObj.children('partial-append').each(function() {
-      var appendObj = $(this);
-      var selector = appendObj.attr('selector');
-      $(selector).append(appendObj.html());
-    });
+  responseObj.children('partial-append').each(function() {
+    var appendObj = $(this);
+    var selector = appendObj.attr('selector');
+    $(selector).append(appendObj.html());
+  });
 
-    responseObj.children('partial-prepend').each(function() {
-      var prependObj = $(this);
-      var selector = prependObj.attr('selector');
-      $(selector).prepend(prependObj.html());
-    });
-  }
+  responseObj.children('partial-prepend').each(function() {
+    var prependObj = $(this);
+    var selector = prependObj.attr('selector');
+    $(selector).prepend(prependObj.html());
+  });
 }

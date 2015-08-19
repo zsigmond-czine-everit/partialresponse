@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.web.partialresponse.tests.servlet;
+package org.everit.web.partialresponse.ri.tests.servlet;
 
 import java.util.Collection;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class WebResourceURIMap implements Map<String, String> {
   private final CommonContextWebResourceURIGenerator uriGenerator;
 
   public WebResourceURIMap(final ServletContext servletContext) {
-    this.uriGenerator = new CommonContextWebResourceURIGenerator(servletContext);
+    uriGenerator = new CommonContextWebResourceURIGenerator(servletContext);
   }
 
   @Override

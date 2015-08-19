@@ -27,7 +27,7 @@
   </parent>
 
   <groupId>org.everit.web</groupId>
-  <artifactId>org.everit.web.partialresponse.parent</artifactId>
+  <artifactId>org.everit.web.partialresponse.ri.parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <packaging>pom</packaging>

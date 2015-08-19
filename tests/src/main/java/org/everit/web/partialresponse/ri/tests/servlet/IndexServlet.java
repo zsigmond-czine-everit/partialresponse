@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.web.partialresponse.tests.servlet;
+package org.everit.web.partialresponse.ri.tests.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +22,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -41,7 +42,7 @@ import org.everit.templating.CompiledTemplate;
 import org.everit.templating.TemplateCompiler;
 import org.everit.templating.html.HTMLTemplateCompiler;
 import org.everit.templating.text.TextTemplateCompiler;
-import org.everit.web.partialresponse.core.PartialResponseBuilder;
+import org.everit.web.partialresponse.ri.PartialResponseBuilder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.wiring.BundleWiring;
 
@@ -74,6 +75,8 @@ public class IndexServlet implements Servlet {
 
   private static final String VAR_SUB_DIV_2_MSG = "sub_div_2_msg";
 
+  private Map<String, Consumer<HttpServletResponse>> ajaxActions = new HashMap<>();
+
   private ClassLoader classLoader;
 
   private ServletConfig config;
@@ -87,6 +90,7 @@ public class IndexServlet implements Servlet {
   public void activate(final BundleContext bundleContext) {
     classLoader = bundleContext.getBundle().adapt(BundleWiring.class).getClassLoader();
     pageTemplate = compileTemplate("META-INF/webcontent/" + getPageId() + ".html");
+    putAjaxActions();
   }
 
   private void appendVars(final String prefix, final Map<String, Object> vars) {
@@ -128,12 +132,6 @@ public class IndexServlet implements Servlet {
     return result;
   }
 
-  private Map<String, Object> createBasisVars(final HttpServletRequest request) {
-    Map<String, Object> vars = new HashMap<>();
-    vars.put("resources", new WebResourceURIMap(request.getServletContext()));
-    return vars;
-  }
-
   @Override
   public void destroy() {
   }
@@ -141,22 +139,22 @@ public class IndexServlet implements Servlet {
   private void doAjax(final HttpServletRequest req, final HttpServletResponse resp)
       throws ServletException, IOException {
     String action = req.getParameter("action");
-    if ("replace_by_id".equals(action)) {
-      doReplaceById(req, resp);
-    } else if ("reset_to_default".equals(action)) {
-      doResetToDefault(req, resp);
-    } else if ("replace".equals(action)) {
-      doReplace(req, resp);
-    } else if ("append".equals(action)) {
-      doAppend(resp);
-    } else if ("prepend".equals(action)) {
-      doPrepend(resp);
-    } else if ("complex".equals(action)) {
-      doComplex(req, resp);
+    if (action == null) {
+      return;
+    }
+    Consumer<HttpServletResponse> actionConsumer = ajaxActions.get(action);
+    if (actionConsumer != null) {
+      actionConsumer.accept(resp);
     }
   }
 
-  private void doAppend(final HttpServletResponse resp) {
+  private void doAppend1(final HttpServletResponse resp) {
+    try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
+      prb.append("#sub_div_0_msg", "_append");
+    }
+  }
+
+  private void doAppend2(final HttpServletResponse resp) {
     try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
       prb.append("#new_content", "_append");
 
@@ -167,9 +165,9 @@ public class IndexServlet implements Servlet {
     }
   }
 
-  private void doComplex(final HttpServletRequest req, final HttpServletResponse resp) {
+  private void doComplex(final HttpServletResponse resp) {
     try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
-      Map<String, Object> vars = createBasisVars(req);
+      Map<String, Object> vars = new HashMap<>();
       appendVars("replace_by_id", vars);
 
       prb.replaceById(writer -> pageTemplate.render(writer, vars, "main_div"));
@@ -183,7 +181,13 @@ public class IndexServlet implements Servlet {
     }
   }
 
-  private void doPrepend(final HttpServletResponse resp) {
+  private void doPrepend1(final HttpServletResponse resp) {
+    try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
+      prb.prepend("#sub_div_0_msg", "prepend_");
+    }
+  }
+
+  private void doPrepend2(final HttpServletResponse resp) {
     try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
       prb.prepend("#new_content", "prepend_");
 
@@ -194,12 +198,20 @@ public class IndexServlet implements Servlet {
     }
   }
 
-  private void doReplace(final HttpServletRequest req, final HttpServletResponse resp) {
+  private void doReplace1(final HttpServletResponse resp) {
+    try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
+      Map<String, Object> vars = new HashMap<>();
+      appendVars("replace", vars);
+      prb.replace("#div_table_2", writer -> pageTemplate.render(writer, vars, "div_table_2"));
+    }
+  }
+
+  private void doReplace2(final HttpServletResponse resp) {
     try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
       prb.replace("#new_content",
           "<div id=\"new_content\">replace_new_content_with_hard_code_html</div>");
 
-      Map<String, Object> vars = createBasisVars(req);
+      Map<String, Object> vars = new HashMap<>();
       appendVars("replace", vars);
 
       prb.replace("#main_div", writer -> pageTemplate.render(writer, vars, "main_div"));
@@ -220,12 +232,20 @@ public class IndexServlet implements Servlet {
     }
   }
 
-  private void doReplaceById(final HttpServletRequest req, final HttpServletResponse resp) {
+  private void doReplaceById1(final HttpServletResponse resp) {
+    try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
+      Map<String, Object> vars = new HashMap<>();
+      appendVars("replace_by_id", vars);
+      prb.replaceById(writer -> pageTemplate.render(writer, vars, "div_table_2"));
+    }
+  }
+
+  private void doReplaceById2(final HttpServletResponse resp) {
     try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
       prb.replaceById(
           "<div id=\"new_content\">replace_by_id_new_content_with_hard_code_html</div>");
 
-      Map<String, Object> vars = createBasisVars(req);
+      Map<String, Object> vars = new HashMap<>();
       appendVars("replace_by_id", vars);
 
       prb.replaceById(writer -> pageTemplate.render(writer, vars, "main_div"));
@@ -245,9 +265,9 @@ public class IndexServlet implements Servlet {
     }
   }
 
-  private void doResetToDefault(final HttpServletRequest req, final HttpServletResponse resp) {
+  private void doResetToDefault(final HttpServletResponse resp) {
     try (PartialResponseBuilder prb = new PartialResponseBuilder(resp)) {
-      Map<String, Object> vars = createBasisVars(req);
+      Map<String, Object> vars = new HashMap<>();
       appendVars(DEFAULT_STRING, vars);
       prb.replaceById(writer -> pageTemplate.render(writer, vars, "full_content"));
     }
@@ -262,7 +282,8 @@ public class IndexServlet implements Servlet {
 
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
     response.setContentType("text/html");
-    Map<String, Object> vars = createBasisVars(request);
+    Map<String, Object> vars = new HashMap<>();
+    vars.put("resources", new WebResourceURIMap(request.getServletContext()));
     appendVars(DEFAULT_STRING, vars);
 
     pageTemplate.render(response.getWriter(), vars, null);
@@ -290,6 +311,19 @@ public class IndexServlet implements Servlet {
   private boolean isAjaxRequest(final HttpServletRequest request) {
     String ajaxHeader = request.getHeader("x-partialresponse-ajax");
     return !((ajaxHeader == null) || Boolean.FALSE.toString().equalsIgnoreCase(ajaxHeader));
+  }
+
+  private void putAjaxActions() {
+    ajaxActions.put("reset_to_default", this::doResetToDefault);
+    ajaxActions.put("replace_by_id_1", this::doReplaceById1);
+    ajaxActions.put("replace_1", this::doReplace1);
+    ajaxActions.put("append_1", this::doAppend1);
+    ajaxActions.put("prepend_1", this::doPrepend1);
+    ajaxActions.put("replace_by_id_2", this::doReplaceById2);
+    ajaxActions.put("replace_2", this::doReplace2);
+    ajaxActions.put("append_2", this::doAppend2);
+    ajaxActions.put("prepend_2", this::doPrepend2);
+    ajaxActions.put("complex", this::doComplex);
   }
 
   /**
