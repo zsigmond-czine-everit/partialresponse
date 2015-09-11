@@ -85,6 +85,7 @@
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Import-Package>
+              javax.servlet.*;version="[2.4,4)",
               *
             </Import-Package>
             <Export-Package>
